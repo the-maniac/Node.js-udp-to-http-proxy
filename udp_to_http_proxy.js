@@ -16,12 +16,14 @@ var http = require('http');
 var httpConnections = [];
 
 var httpServer = http.createServer(function(request, response) {
-  console.log("New HTTP connection from: " + request.socket.remoteAddress);
+  var ipAddress = request.socket.remoteAddress;
+  request.socket.setTimeout(0);
+  console.log("New HTTP connection from: " + ipAddress);
   response.writeHead(200);
   httpConnections.push(response);
 
   request.on('close', function() {
-    console.log("Closed HTTP connection: " + request.socket.remoteAddress);
+    console.log("Closed HTTP connection: " + ipAddress);
     var i = httpConnections.indexOf(response);
     httpConnections.splice(i, 1);
   });
@@ -40,6 +42,6 @@ var udpSocket = dgram.createSocket('udp4', function(msgBuffer) {
 udpSocket.bind(udpPort, '0.0.0.0');
 
 setInterval(function() {
-  console.log("Data rate: " + (1.0 * byteCount * 8 / 1000 / 10) + " kb/s" + " - Active HTTP connections: " + httpConnections.length);
+  console.log("Data rate: " + (8.0 * byteCount / 1000 / 10) + " kb/s" + " - Active HTTP connections: " + httpConnections.length);
   byteCount = 0;
 }, 10000);
